@@ -1,0 +1,76 @@
+#YAML
+# ═══════════════════════════════════════════════════════════════════════════════
+# QTE Stratified Tier 1 — EWMAC-only, long-history instruments (20+ years)
+#
+# Instruments with data from at least 1999:
+#   SP500_micro  (1982), NASDAQ_micro (1999), US10 (1982),
+#   EUR_micro    (1999), SILVER (1970)
+#
+# Excludes: RUSSELL (2015), BITCOIN (2017)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+trading_rules:
+  ewmac8_32:
+    function: systems.provided.rules.ewmac.ewmac
+    data:
+      - "rawdata.get_daily_prices"
+      - "rawdata.daily_returns_volatility"
+    other_args:
+      Lfast: 8
+      Lslow: 32
+    forecast_scalar: 5.3
+
+  ewmac16_64:
+    function: systems.provided.rules.ewmac.ewmac
+    data:
+      - "rawdata.get_daily_prices"
+      - "rawdata.daily_returns_volatility"
+    other_args:
+      Lfast: 16
+      Lslow: 64
+    forecast_scalar: 3.75
+
+  ewmac32_128:
+    function: systems.provided.rules.ewmac.ewmac
+    data:
+      - "rawdata.get_daily_prices"
+      - "rawdata.daily_returns_volatility"
+    other_args:
+      Lfast: 32
+      Lslow: 128
+    forecast_scalar: 2.65
+
+  ewmac64_256:
+    function: systems.provided.rules.ewmac.ewmac
+    data:
+      - "rawdata.get_daily_prices"
+      - "rawdata.daily_returns_volatility"
+    other_args:
+      Lfast: 64
+      Lslow: 256
+    forecast_scalar: 1.87
+
+forecast_cap: 20.0
+
+forecast_weights:
+  ewmac8_32:   0.162
+  ewmac16_64:  0.279
+  ewmac32_128: 0.279
+  ewmac64_256: 0.279
+
+forecast_div_multiplier: 1.1
+
+percentage_vol_target: 15.0
+notional_trading_capital: 500000
+base_currency: "USD"
+
+# Equal-weight 5 instruments (renormalized from Q2 weights)
+instrument_weights:
+  SP500_micro:  0.20
+  NASDAQ_micro: 0.15
+  US10:         0.30
+  EUR_micro:    0.20
+  SILVER:       0.15
+
+# IDM for 5 instruments (Carver table: ~1.4)
+instrument_div_multiplier: 1.4
