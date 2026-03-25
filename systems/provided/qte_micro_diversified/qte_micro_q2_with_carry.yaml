@@ -1,0 +1,100 @@
+#YAML
+# ═══════════════════════════════════════════════════════════════════════════════
+# QTE Micro Diversified Q2 — with CARRY added
+#
+# Same as qte_micro_q2.yaml but adds carry rule at 38% weight (matching
+# the original "Micro Diversified Q" config that included carry).
+# This demonstrates the impact of including carry on system performance.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+trading_rules:
+  ewmac8_32:
+    function: systems.provided.rules.ewmac.ewmac
+    data:
+      - "rawdata.get_daily_prices"
+      - "rawdata.daily_returns_volatility"
+    other_args:
+      Lfast: 8
+      Lslow: 32
+    forecast_scalar: 5.3
+
+  ewmac16_64:
+    function: systems.provided.rules.ewmac.ewmac
+    data:
+      - "rawdata.get_daily_prices"
+      - "rawdata.daily_returns_volatility"
+    other_args:
+      Lfast: 16
+      Lslow: 64
+    forecast_scalar: 3.75
+
+  ewmac32_128:
+    function: systems.provided.rules.ewmac.ewmac
+    data:
+      - "rawdata.get_daily_prices"
+      - "rawdata.daily_returns_volatility"
+    other_args:
+      Lfast: 32
+      Lslow: 128
+    forecast_scalar: 2.65
+
+  ewmac64_256:
+    function: systems.provided.rules.ewmac.ewmac
+    data:
+      - "rawdata.get_daily_prices"
+      - "rawdata.daily_returns_volatility"
+    other_args:
+      Lfast: 64
+      Lslow: 256
+    forecast_scalar: 1.87
+
+  carry:
+    function: systems.provided.rules.carry.carry
+    data:
+      - "rawdata.raw_carry"
+    other_args:
+      smooth_days: 90
+    forecast_scalar: 30
+
+forecast_cap: 20.0
+
+# ── Weights matching "Micro Diversified Q" style (carry at 38%) ──────────────
+# EWMAC weights from Q2, scaled down proportionally: (1 - 0.38) × original
+# Original EWMAC sum = 0.68, carry = 0.38, total EWMAC renorm = 0.62
+forecast_weights:
+  ewmac8_32:   0.07
+  ewmac16_64:  0.12
+  ewmac32_128: 0.12
+  ewmac64_256: 0.12
+  carry:       0.38
+
+# Higher FDM because carry is uncorrelated with momentum (from Q config)
+forecast_div_multiplier: 1.5
+
+# ── Capital / vol target ─────────────────────────────────────────────────────
+percentage_vol_target: 15.0
+notional_trading_capital: 500000
+base_currency: "USD"
+
+# ── Instrument weights (same as QTE Q2) ──────────────────────────────────────
+instrument_weights:
+  SP500_micro:  0.15
+  NASDAQ_micro: 0.11
+  RUSSELL:      0.09
+  BITCOIN:      0.11
+  US10:         0.23
+  EUR_micro:    0.15
+  SILVER:       0.17
+
+instrument_div_multiplier: 1.45
+
+rule_groups:
+  ewmac_fast:
+    - ewmac8_32
+  ewmac_medium:
+    - ewmac16_64
+  ewmac_slow:
+    - ewmac32_128
+    - ewmac64_256
+  carry:
+    - carry

@@ -1,0 +1,99 @@
+#YAML
+# ═══════════════════════════════════════════════════════════════════════════════
+# QTE Micro Diversified Q2 — backport to pysystemtrade
+#
+# Maps QTE instruments to their PST equivalents:
+#   QTE      → PST              Pointsize
+#   QSPX     → SP500_micro      5
+#   QNDX     → NASDAQ_micro     2
+#   QRTY     → RUSSELL          5
+#   QBTC     → BITCOIN          0.1
+#   MTN      → US10             1000
+#   M6E      → EUR_micro        12500
+#   SIC      → SILVER           1000
+#
+# Only EWMAC rules are backported (RSI, MACD, ATR_MOMENTUM, BOLLINGER are not
+# standard PST rules). Rule weights are renormalized to sum to 1.0.
+# Variant B adds carry to demonstrate its impact.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+trading_rules:
+  ewmac8_32:
+    function: systems.provided.rules.ewmac.ewmac
+    data:
+      - "rawdata.get_daily_prices"
+      - "rawdata.daily_returns_volatility"
+    other_args:
+      Lfast: 8
+      Lslow: 32
+    forecast_scalar: 5.3
+
+  ewmac16_64:
+    function: systems.provided.rules.ewmac.ewmac
+    data:
+      - "rawdata.get_daily_prices"
+      - "rawdata.daily_returns_volatility"
+    other_args:
+      Lfast: 16
+      Lslow: 64
+    forecast_scalar: 3.75
+
+  ewmac32_128:
+    function: systems.provided.rules.ewmac.ewmac
+    data:
+      - "rawdata.get_daily_prices"
+      - "rawdata.daily_returns_volatility"
+    other_args:
+      Lfast: 32
+      Lslow: 128
+    forecast_scalar: 2.65
+
+  ewmac64_256:
+    function: systems.provided.rules.ewmac.ewmac
+    data:
+      - "rawdata.get_daily_prices"
+      - "rawdata.daily_returns_volatility"
+    other_args:
+      Lfast: 64
+      Lslow: 256
+    forecast_scalar: 1.87
+
+forecast_cap: 20.0
+
+# ── EWMAC-only weights (renormalized from QTE Q2: 0.11, 0.19, 0.19, 0.19) ──
+forecast_weights:
+  ewmac8_32:   0.162
+  ewmac16_64:  0.279
+  ewmac32_128: 0.279
+  ewmac64_256: 0.279
+
+# FDM from QTE Q2 config — 1.1 (low because all rules are correlated momentum)
+forecast_div_multiplier: 1.1
+
+# ── Capital / vol target ─────────────────────────────────────────────────────
+percentage_vol_target: 15.0
+notional_trading_capital: 500000
+base_currency: "USD"
+
+# ── Instrument weights (same as QTE Q2) ──────────────────────────────────────
+instrument_weights:
+  SP500_micro:  0.15
+  NASDAQ_micro: 0.11
+  RUSSELL:      0.09
+  BITCOIN:      0.11
+  US10:         0.23
+  EUR_micro:    0.15
+  SILVER:       0.17
+
+# IDM from QTE Q2 config
+instrument_div_multiplier: 1.45
+
+# ── Rule groups ──────────────────────────────────────────────────────────────
+rule_groups:
+  ewmac_fast:
+    - ewmac8_32
+  ewmac_medium:
+    - ewmac16_64
+  ewmac_slow:
+    - ewmac32_128
+    - ewmac64_256
